@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CLIENT
+  SHOP
+  ADMIN
+}
+
+enum ServiceType {
+  BATH
+  GROOMING
+  PACKAGE
+}
+
+enum BookingStatus {
+  PENDING
+  PAID
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id               String         @id @default(cuid())
+  clerkId          String         @unique
+  email            String         @unique
+  role             Role           @default(CLIENT)
+  phone            String?
+  whatsappOptInAt  DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  shops            Shop[]         @relation("ShopOwner")
+  pets             Pet[]
+  bookings         Booking[]
+  subscription     Subscription?
+}
+
+model Shop {
+  id          String    @id @default(cuid())
+  ownerId     String
+  owner       User      @relation("ShopOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  name        String
+  cnpj        String?   @unique
+  address     String
+  openHours   Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  services    Service[]
+  bookings    Booking[]
+}
+
+model Pet {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  name      String
+  species   String
+  breed     String
+  weight    Float?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  bookings  Booking[]
+}
+
+model Service {
+  id           String      @id @default(cuid())
+  shopId       String
+  shop         Shop        @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  name         String
+  durationMin  Int
+  price        Float
+  type         ServiceType
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  bookings     Booking[]
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  shopId          String
+  shop            Shop          @relation(fields: [shopId], references: [id], onDelete: Restrict)
+  serviceId       String
+  service         Service       @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  petId           String
+  pet             Pet           @relation(fields: [petId], references: [id], onDelete: Restrict)
+  appointmentDate DateTime
+  status          BookingStatus @default(PENDING)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Subscription {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  planName      String
+  priceCents    Int
+  status        String
+  gatewaySubId  String?
+  nextRenewal   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PaymentLog {
+  id          String   @id @default(cuid())
+  externalId  String?
+  gateway     String
+  rawPayload  Json
+  status      String
+  createdAt   DateTime @default(now())
+}
