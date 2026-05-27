@@ -59,17 +59,24 @@ export function BookingDialog({ service, user }: BookingDialogProps) {
     }
   }, [service.shopId, service.durationMin]);
 
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    if (selectedDate) {
+      fetchSlots(selectedDate);
+    }
+  };
+
   useEffect(() => {
     if (open && user) {
       getUserPets(user.id).then(setPets);
     }
   }, [open, user]);
 
-  useEffect(() => {
-    if (date) {
-      fetchSlots(date);
-    }
-  }, [date, fetchSlots]);
+  // useEffect(() => {
+  //   if (date) {
+  //     fetchSlots(date);
+  //   }
+  // }, [date, fetchSlots]);
 
   const handleBooking = async () => {
     if (!selectedPet || !date || !selectedTime) {
@@ -158,7 +165,7 @@ export function BookingDialog({ service, user }: BookingDialogProps) {
                 <Calendar
                   mode="single"
                   selected={date}
-                  onSelect={setDate}
+                  onSelect={handleDateSelect}
                   disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
                   initialFocus
                 />

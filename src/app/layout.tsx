@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ptBR } from "@clerk/localizations";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
+import { AppShell } from "@/components/layout/app-shell";
+import { BottomNav } from "@/components/layout/bottom-nav";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -40,15 +40,14 @@ export default function RootLayout({
     <ClerkProvider localization={ptBR}>
       <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
         <head>
-          <meta name="theme-color" content="#ffffff" />
+          <meta name="theme-color" content="#22c55e" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
         </head>
-        <body className="min-h-full flex flex-col font-sans">
-          <Navbar />
-          <main className="flex-1">
+        <body className="min-h-full font-sans">
+          <AppShell>
             {children}
-          </main>
-          <Footer />
+            <BottomNav />
+          </AppShell>
           <Toaster position="top-center" richColors />
         </body>
       </html>
